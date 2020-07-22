@@ -17,6 +17,11 @@ from typing import Union
 
 SPECIAL_MOVES: Dict
 
+# Added
+PROTECT_MOVES: Set[str]
+SIDE_PROTECT_MOVES: Set[str]
+PROTECT_COUNTER_MOVES: Set[str]
+
 
 class Move:
     _MISC_FLAGS = [
@@ -597,3 +602,16 @@ class EmptyMove(Move):
 
 
 SPECIAL_MOVES = {"struggle": Move("struggle"), "recharge": EmptyMove("recharge")}
+
+# Added
+PROTECT_MOVES = {
+    "protect",
+    "detect",
+    "endure",
+    "spikyshield",
+    "kingsshield",
+    "banefulbunker",
+    "obstruct",
+}
+SIDE_PROTECT_MOVES = {"wideguard", "quickguard", "matblock", "craftyshield"}
+PROTECT_COUNTER_MOVES = PROTECT_MOVES | SIDE_PROTECT_MOVES

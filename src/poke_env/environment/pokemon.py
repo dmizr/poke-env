@@ -9,9 +9,15 @@ from typing import Union
 
 from poke_env.data import POKEDEX
 from poke_env.environment.effect import Effect
+from poke_env.environment.effect import PROTECT_BREAKING_EFFECTS
 from poke_env.environment.pokemon_gender import PokemonGender
 from poke_env.environment.pokemon_type import PokemonType
 from poke_env.environment.move import Move
+
+# Added
+from poke_env.environment.move import PROTECT_MOVES
+from poke_env.environment.move import PROTECT_COUNTER_MOVES
+
 from poke_env.environment.status import Status
 from poke_env.environment.z_crystal import Z_CRYSTAL
 from poke_env.utils import to_id_str
@@ -46,6 +52,8 @@ class Pokemon:
         "_type_1",
         "_type_2",
         "_weightkg",
+        "_first_turn",
+        "_protect_counter",
     )
 
     def __init__(
@@ -112,6 +120,10 @@ class Pokemon:
         elif details:
             self._update_from_details(details)
 
+        # Added details
+        self._first_turn: bool = False
+        self._protect_counter: int = 0
+
     def __repr__(self) -> str:
         return self.__str__()
 
@@ -140,6 +152,11 @@ class Pokemon:
             self._boosts[stat] = 6
         elif self._boosts[stat] < -6:
             self._boosts[stat] = -6
+
+    # Added
+    def _cant_move(self):
+        self._first_turn = False
+        self._protect_counter = 0
 
     def _clear_boosts(self):
         for stat in self._boosts:
@@ -205,6 +222,8 @@ class Pokemon:
         self._must_recharge = False
         self._preparing = False
         self._add_move(move, use=True)
+        # Added
+        self._first_turn = False
 
     def _prepare(self, move, target):
         self._preparing = (move, target)
@@ -241,7 +260,13 @@ class Pokemon:
 
     def _start_effect(self, effect):
         effect = Effect.from_showdown_message(effect)
+
+        # TODO fix effects that end
         self._effects.add(effect)
+
+        # Added
+        if effect in PROTECT_BREAKING_EFFECTS:
+            self._protect_counter = 0
 
     def _swap_boosts(self):
         self._boosts["atk"], self._boosts["spa"] = (
@@ -252,6 +277,8 @@ class Pokemon:
     def _switch_in(self):
         self._last_request = {}
         self._active = True
+        # Added
+        self._first_turn = True
 
     def _switch_out(self):
         self._last_request = {}
@@ -260,6 +287,9 @@ class Pokemon:
         self._clear_effects()
         self._must_recharge = False
         self._preparing = False
+        # Added
+        self._first_turn = False
+        self._protect_counter = 0
 
     def _transform(self, into):
         current_hp = self.current_hp
@@ -363,6 +393,18 @@ class Pokemon:
             raise NotImplementedError("Unmanaged pokemon ident: %s" % ident)
         self._pokeball = request_pokemon["pokeball"]
         self._stats = request_pokemon["stats"]
+
+    def _update_protect_counter(self, move_id: str, target: str):
+        id_ = Move.retrieve_id(move_id)
+
+        if id_ in PROTECT_COUNTER_MOVES:
+            # Check if the move failed (target doesn't exist)
+            if id_ in PROTECT_MOVES and not target:
+                self._protect_counter = 0
+            else:
+                self._protect_counter += 1
+        else:
+            self._protect_counter = 0
 
     def _used_z_move(self):
         self._item = None

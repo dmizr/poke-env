@@ -43,7 +43,7 @@ class AbstractBattle(ABC):
         "-zbroken",
         "askreg",
         "c",
-        "cant",
+        # Remove cant
         "crit",
         "deinit",
         "gametype",
@@ -334,6 +334,9 @@ class AbstractBattle(ABC):
         elif split_message[1] == "-zpower":
             pokemon = split_message[2]
             self.get_pokemon(pokemon)._used_z_move()
+        elif split_message[1] == "cant":
+            pokemon, reason = split_message[2:4]
+            self.get_pokemon(pokemon)._cant_move()
         elif split_message[1] == "clearpoke":
             self._in_team_preview = True
         elif split_message[1] in ["drag", "switch"]:
