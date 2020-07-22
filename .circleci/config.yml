@@ -36,7 +36,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "python-version.txt" }}-v3
+            - requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "python-version.txt" }}-v4
 
       - run:
           name: install dependencies
@@ -55,11 +55,13 @@ jobs:
           command: |
             . venv/bin/activate
             black src/ unit_tests/ integration_tests/
+
       - run:
           name: flake8
           command: |
             . venv/bin/activate
             flake8 src/ unit_tests/ integration_tests/
+
       - run:
           name: pyre
           command: |
@@ -116,15 +118,17 @@ jobs:
           name: Install showdown dependencies
           command: |
             npm install Pokemon-Showdown
+
       - run:
           name: Uninstall poke-env before caching
           command: |
             pip uninstall poke-env
+
       - save_cache:
           paths:
             - ./venv
             - ./Pokemon-Showdown
-          key: requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "python-version.txt" }}-v3
+          key: requirements-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "python-version.txt" }}-v1
 
       - run:
           name: Start showdown server in the background
@@ -151,4 +155,3 @@ jobs:
     <<: *test-template
     docker:
       - image: circleci/python:3.8
-
