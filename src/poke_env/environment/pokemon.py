@@ -54,6 +54,7 @@ class Pokemon:
         "_weightkg",
         "_first_turn",
         "_protect_counter",
+        "_last_move"
     )
 
     def __init__(
@@ -123,6 +124,7 @@ class Pokemon:
         # Added details
         self._first_turn: bool = False
         self._protect_counter: int = 0
+        self._last_move: Optional[Move] = None
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -224,6 +226,7 @@ class Pokemon:
         self._add_move(move, use=True)
         # Added
         self._first_turn = False
+        self._last_move = Move(move)
 
     def _prepare(self, move, target):
         self._preparing = (move, target)
@@ -279,6 +282,7 @@ class Pokemon:
         self._active = True
         # Added
         self._first_turn = True
+        self._last_move = None
 
     def _switch_out(self):
         self._last_request = {}
@@ -290,6 +294,7 @@ class Pokemon:
         # Added
         self._first_turn = False
         self._protect_counter = 0
+        self._last_move = None
 
     def _transform(self, into):
         current_hp = self.current_hp
