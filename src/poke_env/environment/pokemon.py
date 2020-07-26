@@ -161,7 +161,7 @@ class Pokemon:
     def _cant_move(self):
         self._first_turn = False
         self._protect_counter = 0
-        if self._status:
+        if self._status == Status.SLP:
             self._status_counter += 1
 
     def _clear_boosts(self):
@@ -232,7 +232,7 @@ class Pokemon:
         # Added
         self._first_turn = False
         self._last_move = Move(move)
-        if self._status:
+        if self._status == Status.SLP:
             self._status_counter += 1
 
     def _prepare(self, move, target):
