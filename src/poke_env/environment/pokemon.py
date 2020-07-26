@@ -54,7 +54,8 @@ class Pokemon:
         "_weightkg",
         "_first_turn",
         "_protect_counter",
-        "_last_move"
+        "_last_move",
+        "_status_counter"
     )
 
     def __init__(
@@ -125,6 +126,7 @@ class Pokemon:
         self._first_turn: bool = False
         self._protect_counter: int = 0
         self._last_move: Optional[Move] = None
+        self._status_counter: int = 0
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -159,6 +161,8 @@ class Pokemon:
     def _cant_move(self):
         self._first_turn = False
         self._protect_counter = 0
+        if self._status:
+            self._status_counter += 1
 
     def _clear_boosts(self):
         for stat in self._boosts:
@@ -183,6 +187,7 @@ class Pokemon:
     def _cure_status(self, status):
         if Status[status.upper()] == self._status:
             self._status = None
+            self._status_counter = 0
 
     def _damage(self, hp_status):
         self._set_hp_status(hp_status)
@@ -227,6 +232,8 @@ class Pokemon:
         # Added
         self._first_turn = False
         self._last_move = Move(move)
+        if self._status:
+            self._status_counter += 1
 
     def _prepare(self, move, target):
         self._preparing = (move, target)
