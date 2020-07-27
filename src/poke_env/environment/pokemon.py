@@ -137,6 +137,12 @@ class Pokemon:
             f"[Active: {self._active}, Status: {self._status}]"
         )
 
+    # Added
+    def _acted(self):
+        self._first_turn = False
+        if self._status == Status.SLP:
+            self._status_counter += 1
+
     def _add_move(self, move_id: str, use: bool = False) -> None:
         """Store the move if applicable."""
         id_ = Move.retrieve_id(move_id)
@@ -159,10 +165,8 @@ class Pokemon:
 
     # Added
     def _cant_move(self):
-        self._first_turn = False
         self._protect_counter = 0
-        if self._status == Status.SLP:
-            self._status_counter += 1
+        self._acted()
 
     def _clear_boosts(self):
         for stat in self._boosts:
@@ -229,11 +233,10 @@ class Pokemon:
         self._must_recharge = False
         self._preparing = False
         self._add_move(move, use=True)
+
         # Added
-        self._first_turn = False
         self._last_move = Move(move)
-        if self._status == Status.SLP:
-            self._status_counter += 1
+        self._acted()
 
     def _prepare(self, move, target):
         self._preparing = (move, target)
