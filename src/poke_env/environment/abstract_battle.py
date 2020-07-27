@@ -473,6 +473,11 @@ class AbstractBattle(ABC):
 
     @property
     @abstractmethod
+    def all_active_pokemon(self) -> List[Pokemon]:
+        pass
+
+    @property
+    @abstractmethod
     def available_moves(self):
         pass
 

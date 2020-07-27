@@ -317,6 +317,15 @@ class DoubleBattle(AbstractBattle):
         )
 
     @property
+    def all_active_pokemon(self) -> List[Pokemon]:
+        """
+        :return: All active pokemon (from both the player and opponent)
+        :rtype: List[Pokemon]
+        """
+        active = self.active_pokemon + self.opponent_active_pokemon
+        return [pokemon for pokemon in active if pokemon is not None]
+
+    @property
     def available_moves(self) -> List[List[Move]]:
         """
         :return: A list of two lists of moves the player can use during the current
