@@ -100,6 +100,8 @@ class AbstractBattle(ABC):
         "_turn",
         "_wait",
         "_weather",
+        # Added
+        "_weather_counter",
         "_won",
         "logger",
     )
@@ -136,9 +138,10 @@ class AbstractBattle(ABC):
 
         # In game battle state attributes
         self._weather = None
-        self._fields = set()
-        self._side_conditions = set()
-        self._opponent_side_conditions = set()
+        self._weather_counter: int = 0
+        self._fields: Dict[Field, int] = {}  # set()
+        self._side_conditions: Dict[SideCondition, int] = {}  # set()
+        self._opponent_side_conditions: Dict[SideCondition, int] = {}  # set()
 
         # Pokemon attributes
         self._team: Dict[str, Pokemon] = {}
@@ -206,11 +209,11 @@ class AbstractBattle(ABC):
     def _field_end(self, field):
         field = Field.from_showdown_message(field)
         assert field in self.fields
-        self._fields.remove(field)
+        self._fields.pop(field)
 
     def _field_start(self, field):
         field = Field.from_showdown_message(field)
-        self._fields.add(field)
+        self._fields[field] = 0
 
     def _parse_message(self, split_message: List[str]) -> None:
         if split_message[1] in self.MESSAGES_TO_IGNORE:
@@ -331,6 +334,7 @@ class AbstractBattle(ABC):
         elif split_message[1] == "-weather":
             weather = split_message[2]
             self.weather = weather
+            self._weather_counter = 0
         elif split_message[1] == "-zpower":
             pokemon = split_message[2]
             self.get_pokemon(pokemon)._used_z_move()
@@ -413,7 +417,7 @@ class AbstractBattle(ABC):
         else:
             conditions = self.opponent_side_conditions
         condition = SideCondition.from_showdown_message(condition)
-        conditions.remove(condition)
+        conditions.pop(condition)
 
     def _side_start(self, side, condition):
         if side[:2] == self._player_role:
@@ -421,7 +425,7 @@ class AbstractBattle(ABC):
         else:
             conditions = self.opponent_side_conditions
         condition = SideCondition.from_showdown_message(condition)
-        conditions.add(condition)
+        conditions[condition] = 0
 
     def _swap(self, *args, **kwargs):
         self.logger.warning("swap method in Battle is not implemented")
@@ -432,6 +436,19 @@ class AbstractBattle(ABC):
 
     def _tied(self):
         self._finished = True
+
+    def _turn_end(self):
+        if self._weather:
+            self._weather_counter += 1
+
+        for field in self._fields.keys():
+            self._fields[field] += 1
+
+        for condition in self._side_conditions.keys():
+            self._side_conditions[condition] += 1
+
+        for condition in self._opponent_side_conditions.keys():
+            self._opponent_side_conditions[condition] += 1
 
     def _update_team_from_request(self, side: Dict) -> None:
         for pokemon in self.team.values():
@@ -494,7 +511,7 @@ class AbstractBattle(ABC):
             return max(3 - (self.turn - self._dynamax_turn), 0)  # pyre-ignore
 
     @property
-    def fields(self) -> Set[Field]:
+    def fields(self) -> Dict[Field, int]:
         """
         :return: The set of active fields.
         :rtype: Set[Field]
@@ -576,7 +593,7 @@ class AbstractBattle(ABC):
             return "p1"
 
     @property
-    def opponent_side_conditions(self) -> Set[SideCondition]:
+    def opponent_side_conditions(self) -> Dict[SideCondition, int]:
         """
         :return: The opponent's set of side conditions.
         :rtype: Set[SideCondition]
@@ -674,7 +691,7 @@ class AbstractBattle(ABC):
         return self._rqid
 
     @property
-    def side_conditions(self) -> Set[SideCondition]:
+    def side_conditions(self) -> Dict[SideCondition, int]:
         """
         :return: The player's set of side conditions.
         :rtype: Set[SideCondition]
@@ -754,6 +771,14 @@ class AbstractBattle(ABC):
                 self._weather = Weather[weather.upper()]
             except Exception as e:
                 self.logger.warning("Weather %s unknown (%s)", weather, e)
+
+    @property
+    def weather_counter(self) -> int:
+        """
+        :return: The battle's weather counter
+        :rtype: int
+        """
+        return self._weather_counter
 
     @property
     def won(self) -> Optional[bool]:

@@ -64,8 +64,8 @@ def test_battle_side_start_end():
     condition = "safeguard"
     battle._parse_message(["", "-sidestart", "p1", condition])
     battle._parse_message(["", "-sidestart", "p2", condition])
-    assert battle.side_conditions == {SideCondition.SAFEGUARD}
-    assert battle.opponent_side_conditions == {SideCondition.SAFEGUARD}
+    assert battle.side_conditions == {SideCondition.SAFEGUARD: 0}
+    assert battle.opponent_side_conditions == {SideCondition.SAFEGUARD: 0}
 
     battle._parse_message(["", "-sideend", "p1", condition])
     battle._parse_message(["", "-sideend", "p2", condition])
@@ -86,13 +86,13 @@ def test_battle_field_interactions():
     assert not battle.fields
 
     battle._parse_message(["", "-fieldstart", "Electric terrain"])
-    assert battle.fields == {Field.ELECTRIC_TERRAIN}
+    assert battle.fields == {Field.ELECTRIC_TERRAIN: 0}
 
     battle._parse_message(["", "-fieldstart", "Trick room"])
-    assert battle.fields == {Field.ELECTRIC_TERRAIN, Field.TRICK_ROOM}
+    assert battle.fields == {Field.ELECTRIC_TERRAIN: 0, Field.TRICK_ROOM: 0}
 
     battle._parse_message(["", "-fieldend", "Trick room"])
-    assert battle.fields == {Field.ELECTRIC_TERRAIN}
+    assert battle.fields == {Field.ELECTRIC_TERRAIN: 0}
 
     battle._parse_message(["", "-fieldend", "Electric terrain"])
     assert not battle.fields
@@ -102,6 +102,49 @@ def test_battle_field_interactions():
 
     with pytest.raises(Exception):
         battle._parse_message(["", "-fieldend", "non existent field"])
+
+
+def test_battle_turn_end():
+    logger = MagicMock()
+    battle = Battle("tag", "username", logger)
+    battle._player_role = "p1"
+
+    battle._parse_message(["", "-weather", "hail"])
+    assert battle.weather == Weather.HAIL
+
+    condition_p1 = "safeguard"
+    condition_p2 = "tailwind"
+    battle._parse_message(["", "-sidestart", "p1", condition_p1])
+    assert battle.side_conditions == {SideCondition.SAFEGUARD: 0}
+    assert battle.weather_counter == 0
+
+    # End of first turn
+    battle._turn_end()
+
+    battle._parse_message(["", "-sidestart", "p2", condition_p2])
+    battle._parse_message(["", "-fieldstart", "Electric terrain"])
+
+    assert battle.side_conditions == {SideCondition.SAFEGUARD: 1}
+    assert battle.opponent_side_conditions == {SideCondition.TAILWIND: 0}
+    assert battle.weather_counter == 1
+    assert battle.fields == {Field.ELECTRIC_TERRAIN: 0}
+
+    # End of second turn
+    battle._turn_end()
+
+    battle._parse_message(["", "-weather", "none"])
+    battle._parse_message(["", "-fieldstart", "Trick room"])
+
+    assert battle.fields == {Field.ELECTRIC_TERRAIN: 1, Field.TRICK_ROOM: 0}
+    assert battle.side_conditions == {SideCondition.SAFEGUARD: 2}
+    assert battle.opponent_side_conditions == {SideCondition.TAILWIND: 1}
+    assert battle.weather is None
+    assert battle.weather_counter == 0
+
+    # End of third turn
+    battle._turn_end()
+    assert battle.weather_counter == 0
+
 
 
 def test_battle_weather_interactions():

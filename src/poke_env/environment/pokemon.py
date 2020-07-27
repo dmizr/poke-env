@@ -55,7 +55,7 @@ class Pokemon:
         "_first_turn",
         "_protect_counter",
         "_last_move",
-        "_status_counter"
+        "_status_counter",
     )
 
     def __init__(
