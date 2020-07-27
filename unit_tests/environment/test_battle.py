@@ -146,7 +146,6 @@ def test_battle_turn_end():
     assert battle.weather_counter == 0
 
 
-
 def test_battle_weather_interactions():
     logger = MagicMock()
     battle = Battle("tag", "username", logger)
