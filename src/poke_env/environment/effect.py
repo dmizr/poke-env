@@ -177,3 +177,29 @@ PROTECT_BREAKING_EFFECTS: Set[Effect] = {
     Effect.HYPERSPACE_FURY,
     Effect.HYPERSPACE_HOLE,
 }
+
+TURN_COUNTER_EFFECTS: Set[Effect] = {
+    Effect.BIND,
+    Effect.CLAMP,
+    Effect.DISABLE,
+    Effect.DYNAMAX,
+    Effect.EMBARGO,
+    Effect.ENCORE,
+    Effect.FIRE_SPIN,
+    Effect.HEAL_BLOCK,
+    Effect.INFESTATION,
+    Effect.MAGMA_STORM,
+    Effect.MAGNET_RISE,
+    Effect.SAND_TOMB,
+    Effect.SKY_DROP,  # different from others, but could be competitively relevant
+    Effect.SLOW_START,
+    Effect.TAUNT,
+    Effect.WHIRLPOOL,
+    Effect.WRAP,
+}
+
+ACTION_COUNTER_EFFECTS: Set[Effect] = {
+    Effect.CONFUSION,
+    Effect.TORMENT,
+}
+COUNTER_EFFECTS: Set[Effect] = TURN_COUNTER_EFFECTS.union(ACTION_COUNTER_EFFECTS)

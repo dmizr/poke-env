@@ -139,6 +139,8 @@ class Pokemon:
 
     # Added
     def _acted(self):
+        self._must_recharge = False
+        self._preparing = False
         self._first_turn = False
         if self._status == Status.SLP:
             self._status_counter += 1
@@ -230,8 +232,6 @@ class Pokemon:
             self._update_from_pokedex(mega_species)
 
     def _moved(self, move):
-        self._must_recharge = False
-        self._preparing = False
         self._add_move(move, use=True)
 
         # Added
@@ -310,6 +310,10 @@ class Pokemon:
         current_hp = self.current_hp
         self._update_from_pokedex(into.species)
         self._current_hp = int(current_hp)
+
+    def _turn_end(self):
+        if self._status == Status.TOX:
+            self._status_counter += 1
 
     def _update_from_pokedex(self, species: str) -> None:
         dex_entry = POKEDEX[to_id_str(species)]
