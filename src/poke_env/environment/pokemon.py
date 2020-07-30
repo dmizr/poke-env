@@ -3,13 +3,15 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Set
 from typing import Tuple
 from typing import Union
 
 from poke_env.data import POKEDEX
 from poke_env.environment.effect import Effect
 from poke_env.environment.effect import PROTECT_BREAKING_EFFECTS
+from poke_env.environment.effect import COUNTER_EFFECTS
+from poke_env.environment.effect import TURN_COUNTER_EFFECTS
+from poke_env.environment.effect import ACTION_COUNTER_EFFECTS
 from poke_env.environment.pokemon_gender import PokemonGender
 from poke_env.environment.pokemon_type import PokemonType
 from poke_env.environment.move import Move
@@ -105,7 +107,7 @@ class Pokemon:
             "spe": 0,
         }
         self._current_hp: int = 0
-        self._effects: Set[Effect] = set()
+        self._effects: Dict[Effect, Optional[int]] = {}
         self._item: Optional[str] = None
         self._last_request: dict = {}
         self._must_recharge = False
@@ -145,6 +147,10 @@ class Pokemon:
         if self._status == Status.SLP:
             self._status_counter += 1
 
+        for effect in self._effects:
+            if effect in ACTION_COUNTER_EFFECTS:
+                self._effects[effect] += 1
+
     def _add_move(self, move_id: str, use: bool = False) -> None:
         """Store the move if applicable."""
         id_ = Move.retrieve_id(move_id)
@@ -175,7 +181,7 @@ class Pokemon:
             self._boosts[stat] = 0
 
     def _clear_effects(self):
-        self._effects = set()
+        self._effects = {}
 
     def _clear_negative_boosts(self):
         for stat, value in self._boosts.items():
@@ -201,7 +207,7 @@ class Pokemon:
     def _end_effect(self, effect):
         effect = Effect.from_showdown_message(effect)
         if effect in self._effects:
-            self._effects.remove(effect)
+            self._effects.pop(effect)
 
     def _end_item(self, item):
         self._item = None
@@ -278,9 +284,12 @@ class Pokemon:
         effect = Effect.from_showdown_message(effect)
 
         # TODO fix effects that end
-        self._effects.add(effect)
+        # Modified to add a counter
+        if effect in COUNTER_EFFECTS:
+            self._effects[effect] = 0
+        else:
+            self._effects[effect] = None
 
-        # Added
         if effect in PROTECT_BREAKING_EFFECTS:
             self._protect_counter = 0
 
@@ -317,6 +326,10 @@ class Pokemon:
     def _turn_end(self):
         if self._status == Status.TOX:
             self._status_counter += 1
+
+        for effect in self._effects:
+            if effect in TURN_COUNTER_EFFECTS:
+                self._effects[effect] += 1
 
     def _update_from_pokedex(self, species: str) -> None:
         dex_entry = POKEDEX[to_id_str(species)]
@@ -533,7 +546,7 @@ class Pokemon:
         return 0
 
     @property
-    def effects(self) -> Set[Effect]:
+    def effects(self) -> Dict[Effect, Optional[int]]:
         """
         :return: The effects currently affecting the pokemon.
         :rtype: Set[Effect]
