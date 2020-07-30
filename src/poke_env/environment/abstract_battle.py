@@ -288,6 +288,8 @@ class AbstractBattle(ABC):
             self.get_pokemon(pokemon).must_recharge = True
         elif split_message[1] == "-prepare":
             attacker, move, defender = split_message[2:5]
+            # TODO handle sky drop case
+            # TODO store the slot targeted, not the target
             self.get_pokemon(attacker)._prepare(move, self.get_pokemon(defender))
         elif split_message[1] == "-primal":
             pokemon = split_message[2]

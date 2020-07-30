@@ -252,7 +252,7 @@ class Pokemon:
         self._acted()
 
     def _prepare(self, move, target):
-        self._preparing = (move, target)
+        self._preparing = (Move.retrieve_id(move), target)
 
     def _primal(self):
         primal_species = self._species + "primal"
