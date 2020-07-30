@@ -58,6 +58,7 @@ class Pokemon:
         "_protect_counter",
         "_last_move",
         "_status_counter",
+        "_selected",
     )
 
     def __init__(
@@ -93,6 +94,9 @@ class Pokemon:
         self._moves: Dict[str, Move] = {}
         self._pokeball: Optional[str] = None
         self._shiny: Optional[bool] = False
+        # Indicates if we know the Pokemon was selected in the battle
+        # Useful for formats where not all Pokemon are selected (i.e. VGC)
+        self._selected = False
 
         # Battle related attributes
 
@@ -305,6 +309,7 @@ class Pokemon:
         # Added
         self._first_turn = True
         self._last_move = None
+        self._selected = True
 
     def _switch_out(self):
         self._last_request = {}
