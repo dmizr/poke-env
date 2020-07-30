@@ -206,6 +206,9 @@ class Pokemon:
     def _end_item(self, item):
         self._item = None
 
+        if to_id_str(item) == "powerherb":
+            self._preparing = False
+
     def _faint(self):
         self._current_hp = 0
         self.status = Status.FNT
