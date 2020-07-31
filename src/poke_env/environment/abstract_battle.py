@@ -452,6 +452,9 @@ class AbstractBattle(ABC):
         for condition in self._opponent_side_conditions.keys():
             self._opponent_side_conditions[condition] += 1
 
+        for pokemon in self.all_active_pokemon:
+            pokemon._turn_end()
+
     def _update_team_from_request(self, side: Dict) -> None:
         for pokemon in self.team.values():
             pokemon._active = False
