@@ -433,7 +433,7 @@ class Pokemon:
         else:
             raise NotImplementedError("Unmanaged pokemon ident: %s" % ident)
         self._pokeball = request_pokemon["pokeball"]
-        self._stats = request_pokemon["stats"]
+        self._stats.update(request_pokemon["stats"])
 
     def _update_protect_counter(self, move_id: str, target: str):
         id_ = Move.retrieve_id(move_id)
