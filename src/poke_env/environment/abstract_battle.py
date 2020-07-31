@@ -345,9 +345,9 @@ class AbstractBattle(ABC):
             self.get_pokemon(pokemon)._cant_move()
         elif split_message[1] == "clearpoke":
             self._in_team_preview = True
-        elif split_message[1] in ["drag", "switch"]:
+        elif split_message[1] == "drag":
             pokemon, details, hp_status = split_message[2:5]
-            self._switch(pokemon, details, hp_status)
+            self._switch(pokemon, details, hp_status, drag=True)
         elif split_message[1] == "faint":
             pokemon = split_message[2]
             self.get_pokemon(pokemon)._faint()
@@ -397,6 +397,9 @@ class AbstractBattle(ABC):
         elif split_message[1] == "swap":
             pokemon, position = split_message[2:4]
             self._swap(pokemon, position)
+        elif split_message[1] == "switch":
+            pokemon, details, hp_status = split_message[2:5]
+            self._switch(pokemon, details, hp_status, drag=False)
         elif split_message[1] == "teamsize":
             player, number = split_message[2:4]
             number = int(number)
@@ -433,7 +436,7 @@ class AbstractBattle(ABC):
         self.logger.warning("swap method in Battle is not implemented")
 
     @abstractmethod
-    def _switch(self, pokemon, details, hp_status):
+    def _switch(self, pokemon, details, hp_status, drag=False):
         pass
 
     def _tied(self):

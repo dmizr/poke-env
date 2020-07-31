@@ -199,7 +199,7 @@ class DoubleBattle(AbstractBattle):
                         if not pokemon.active and not pokemon.fainted:
                             self._available_switches[pokemon_index].append(pokemon)
 
-    def _switch(self, pokemon, details, hp_status):
+    def _switch(self, pokemon, details, hp_status, drag=False):
         pokemon_identifier = pokemon.split(":")[0][:3]
         player_identifier = pokemon_identifier[:2]
         team = (

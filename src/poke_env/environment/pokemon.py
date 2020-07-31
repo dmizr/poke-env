@@ -54,6 +54,7 @@ class Pokemon:
         "_type_1",
         "_type_2",
         "_weightkg",
+        # Added
         "_first_turn",
         "_protect_counter",
         "_last_move",
