@@ -257,6 +257,7 @@ class Player(PlayerNetwork, ABC):
             elif split_message[1] == "expire":
                 pass
             elif split_message[1] == "turn":
+                battle._turn_end()
                 battle.turn = int(split_message[2])
                 await self._handle_battle_request(battle)
             elif split_message[1] == "teampreview":
