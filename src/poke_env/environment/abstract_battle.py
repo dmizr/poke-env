@@ -358,7 +358,7 @@ class AbstractBattle(ABC):
             self._format = split_message[2]
         elif split_message[1] == "move":
             pokemon, move, target = split_message[2:5]
-            self.get_pokemon(pokemon)._moved(move)
+            self.get_pokemon(pokemon)._moved(move, target)
         elif split_message[1] == "player":
             player, username, avatar, rating = split_message[2:6]
             if username == self._player_username:

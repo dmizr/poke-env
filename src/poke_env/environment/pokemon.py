@@ -245,11 +245,12 @@ class Pokemon:
             self._species = mega_species
             self._update_from_pokedex(mega_species)
 
-    def _moved(self, move):
+    def _moved(self, move, target):
         self._add_move(move, use=True)
 
         # Added
         self._last_move = Move(move)
+        self._update_protect_counter(move, target)
         self._acted()
 
     def _prepare(self, move, target):
