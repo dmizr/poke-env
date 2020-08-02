@@ -260,7 +260,8 @@ class Pokemon:
         self._update_from_pokedex(primal_species)
 
     def _set_boost(self, stat, amount):
-        assert abs(int(amount)) <= 6
+        # Clamp value to [-6,+6] range
+        amount = max(min(amount, 6), -6)
         self._boosts[stat] = int(amount)
 
     def _set_hp(self, hp_status):
